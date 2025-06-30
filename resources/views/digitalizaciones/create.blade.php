@@ -326,7 +326,47 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     btnGenerarPdf.addEventListener('click', function() {
-        alert('Función generar PDF - Aquí se procesarían las imágenes para crear PDFs con los archivos cargados.');
+        // Recopila todos los datos del formulario
+    const formData = new FormData(digitalizacionForm);
+
+    // Los archivos ya están adjuntados al FormData porque el input 'archivos'
+    // se actualiza en la función `updateFilesDisplay()`.
+    // Si tuvieras que adjuntarlos manualmente (ej. si currentFiles no se refleja en el input file):
+    // currentFiles.forEach((file, index) => {
+    //     formData.append(`archivos[${index}]`, file);
+    // });
+
+    fetch("{{ route('digitalizar.generatePdf') }}", {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            // No se necesita el encabezado 'Content-Type' para FormData; el navegador lo establece automáticamente
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            // Maneja errores HTTP, por ejemplo, errores de validación
+            return response.json().then(errorData => {
+                console.error('Error al generar PDF:', errorData);
+                alert('Hubo un error al generar el PDF. Por favor, revise la consola para más detalles.');
+                throw new Error('Server error');
+            });
+        }
+        return response.blob(); // Obtén la respuesta como un Blob (datos binarios)
+    })
+    .then(blob => {
+        // Crea una URL para el Blob
+        const url = window.URL.createObjectURL(blob);
+        // Abre el PDF en una nueva pestaña
+        window.open(url, '_blank');
+        // Libera la URL cuando ya no sea necesaria
+        window.URL.revokeObjectURL(url);
+    })
+    .catch(error => {
+        console.error('Error en la solicitud de generación de PDF:', error);
+        alert('No se pudo generar el PDF. Revise la consola para más detalles.');
+    });
     });
     
     document.getElementById('btn-cambiar-scanner').addEventListener('click', function() {

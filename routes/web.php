@@ -86,3 +86,4 @@ Route::get('/digitalizaciones/{id}/descargar', [DigitalizacionController::class,
 Route::post('/digitalizar/{digitalizacion}/estado', [DigitalizacionController::class, 'cambiarEstado'])->name('digitalizar.cambiarEstado');
 Route::get('/digitalizaciones/{digitalizacion}/download-file/{fileIndex}', [DigitalizacionController::class, 'downloadFile'])
     ->name('digitalizacion.downloadFile'); 
+Route::post('/digitalizar/generar-pdf', [DigitalizacionController::class, 'generatePdf'])->name('digitalizar.generatePdf');

@@ -144,7 +144,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                    <a href="{{ route('recepcion.show', $recepcion->id) }}" class="btn btn-secondary me-md-2">
+                                    <a href="{{ route('recepcion.index', $recepcion->id) }}" class="btn btn-secondary me-md-2">
                                         <i class="fas fa-times"></i> Cancelar
                                     </a>
                                     <button type="submit" class="btn btn-success">

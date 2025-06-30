@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Digitalizacion;
 use Illuminate\Http\Request;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -175,6 +177,7 @@ class DigitalizacionController extends Controller
             'comentario' => 'nullable|string',
             'ocr' => 'boolean',
             'visor' => 'boolean',
+            'estado' => 'required|string|in:pendiente,procesando,completado,error',
         ]);
 
         if ($validator->fails()) {
@@ -191,6 +194,7 @@ class DigitalizacionController extends Controller
             'comentario' => $request->comentario,
             'ocr' => $request->has('ocr'),
             'visor' => $request->has('visor'),
+            'estado' => $request->estado,
         ]);
 
         return redirect()->route('digitalizacion.index')
@@ -500,4 +504,54 @@ class DigitalizacionController extends Controller
 
     return response()->download($rutaArchivo);
 }
+    public function generatePdf(Request $request)
+    {
+        // 1. Valida los datos de la solicitud entrante
+        $validatedData = $request->validate([
+            'tipo' => 'required|string|max:255',
+            'ocr' => 'nullable|boolean',
+            'nuc' => 'required|string|max:255',
+            'presentado_por' => 'required|string|max:255',
+            'fecha_presentacion' => 'required|date',
+            'comentario' => 'nullable|string',
+            'archivos' => 'nullable|array|max:10', // Permite hasta 10 archivos
+            'archivos.*' => 'mimes:pdf,jpg,jpeg,png,tiff,bmp|max:20480', // 20MB por archivo
+        ]);
+
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true); // Importante para cargar imágenes desde URLs si es necesario
+        $dompdf = new Dompdf($options);
+
+        // Prepara los datos para la vista del PDF
+        $data = $validatedData;
+        $data['uploaded_images'] = [];
+
+        if ($request->hasFile('archivos')) {
+            foreach ($request->file('archivos') as $file) {
+                // Almacena el archivo temporalmente y obtén su ruta
+                // Se almacenará en storage/app/public/temp_pdf_images
+                $path = $file->store('temp_pdf_images', 'public');
+                $data['uploaded_images'][] = Storage::url($path); // Obtén la URL pública
+            }
+        }
+
+        // Renderiza una vista Blade a HTML para Dompdf
+        // Crea un nuevo archivo Blade para tu contenido PDF, por ejemplo, resources/views/pdfs/digitalizacion.blade.php
+        $html = view('pdfs.digitalizacion', $data)->render();
+
+        $dompdf->loadHtml($html);
+
+        // (Opcional) Establece el tamaño y la orientación del papel
+        $dompdf->setPaper('Letter', 'portrait');
+
+        // Renderiza el PDF
+        $dompdf->render();
+
+        // Transmite el PDF al navegador
+        return $dompdf->stream('digitalizacion_' . $data['nuc'] . '.pdf', ["Attachment" => false]);
+
+        // Si quieres que se descargue inmediatamente:
+        // return $dompdf->download('digitalizacion_' . $data['nuc'] . '.pdf');
+    }
 }

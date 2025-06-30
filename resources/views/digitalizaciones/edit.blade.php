@@ -7,7 +7,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4>Editar Digitalización #{{ $digitalizacion->id }}</h4>
-                    <a href="{{ route('digitalizar.show', $digitalizacion->id) }}" class="btn btn-secondary">
+                    <a href="{{ route('digitalizacion.index', $digitalizacion->id) }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Volver
                     </a>
                 </div>
