@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RecepcionController;
 use App\Http\Controllers\DigitalizacionController;
+use App\Http\Controllers\ComplementarController;
 // Ruta principal del dashboard
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -87,3 +88,36 @@ Route::post('/digitalizar/{digitalizacion}/estado', [DigitalizacionController::c
 Route::get('/digitalizaciones/{digitalizacion}/download-file/{fileIndex}', [DigitalizacionController::class, 'downloadFile'])
     ->name('digitalizacion.downloadFile'); 
 Route::post('/digitalizar/generar-pdf', [DigitalizacionController::class, 'generatePdf'])->name('digitalizar.generatePdf');
+
+// ==============================================
+// RUTAS para complementar
+// ==============================================
+// Ruta GET para mostrar el formulario de creación (ej. /complementar)
+Route::get('/complementar', [ComplementarController::class, 'create'])->name('complementar.create');
+
+// Ruta POST para guardar el formulario (ej. /complementar)
+Route::post('/complementar', [ComplementarController::class, 'store'])->name('complementar.store');
+
+// Grupo de rutas para otras acciones de Complementar, usando un prefijo y nombres base
+Route::prefix('complementar')->name('complementar.')->group(function () {
+    // Listar todos los documentos complementarios (ej. /complementar/lista)
+    Route::get('/lista', [ComplementarController::class, 'index'])->name('index'); // Usar this.route('complementar.index')
+
+    // Mostrar documento específico (ej. /complementar/ver/{id})
+    Route::get('/ver/{id}', [ComplementarController::class, 'show'])->name('show');
+
+    // Formulario de edición (ej. /complementar/editar/{id})
+    Route::get('/editar/{id}', [ComplementarController::class, 'edit'])->name('edit');
+
+    // Actualizar documento (ej. /complementar/actualizar/{id})
+    Route::put('/actualizar/{id}', [ComplementarController::class, 'update'])->name('update');
+
+    // Eliminar documento (soft delete) (ej. /complementar/eliminar/{id})
+    Route::delete('/eliminar/{id}', [ComplementarController::class, 'destroy'])->name('destroy');
+
+    // Búsqueda de documentos (ej. /complementar/buscar)
+    Route::get('/buscar', [ComplementarController::class, 'search'])->name('search');
+
+    // Exportar documentos (ej. /complementar/exportar)
+    Route::get('/exportar', [ComplementarController::class, 'export'])->name('export');
+});
