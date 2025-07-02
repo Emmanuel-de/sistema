@@ -14,11 +14,11 @@
                         
                         <div class="row mb-3">
                             <div class="col-md-8">
-                                <label for="nuc" class="form-label">NUC:</label>
-                                <input type="text" class="form-control" id="nuc" name="nuc" value="{{ old('nuc') }}">
-                                @error('nuc')
-                                    <div class="text-danger">{{ $message }}</div>
-                                @enderror
+                                 <label for="nuc" class="form-label">NUC:</label> {{-- Aquí se establece el valor del NUC --}}
+                                 <input type="text" class="form-control" id="nuc" name="nuc" value="{{ $nuc ?? old('nuc') }}" readonly>
+                                  @error('nuc')
+                                  <div class="text-danger">{{ $message }}</div>
+                              @enderror
                             </div>
                             <div class="col-md-4">
                                 <div class="form-check mt-4">
@@ -62,7 +62,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-4">
-                                <label for="numero_fojas" class="form-label">Número de Fojas:</label>
+                                <label for="numero_fojas" class="form-label">Número de Hojas:</label>
                                 <input type="number" class="form-control" id="numero_fojas" name="numero_fojas" value="{{ old('numero_fojas') }}" min="1">
                                 @error('numero_fojas')
                                     <div class="text-danger">{{ $message }}</div>

@@ -30,9 +30,22 @@ class ComplementarController extends Controller
      */
     public function create()
     {
-        // Se puede pasar una colección vacía para que el @forelse de la tabla no dé error
-        $documentos = Complementar::where('estado', 'inactivo')->limit(0)->get(); // No devuelve registros
-        return view('complementar.complementar', compact('documentos'));
+      $documentos = \DB::table('datos_complementarios')
+        ->select(
+            'folio_unico',
+            'tipo_documento',
+            'nuc',
+            'fecha_recepcion',
+            'quien_presenta',
+            'numero_hojas',
+            'numero_anexos',
+            'descripcion'
+        )
+        ->where('estado', 'activo')
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return view('complementar.complementar', compact('documentos'));
     }
 
     /**

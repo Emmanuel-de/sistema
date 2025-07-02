@@ -43,28 +43,31 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="nuc" class="form-label">NUC:</label>
-                                    <input type="text" class="form-control" id="nuc" name="nuc" value="{{ old('nuc') }}" required>
+                                   <label for="nuc" class="form-label">NUC:</label>
+                                   {{-- AÑADIDO: onblur para llamar a la función JavaScript --}}
+                                   <input type="text" class="form-control" id="nuc" name="nuc" value="{{ old('nuc') }}" required onblur="autocompleteDigitalizacionFields()"> 
                                     @error('nuc')
-                                        <div class="text-danger">{{ $message }}</div>
+                                    <div class="text-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
 
-                                <div class="mb-3">
-                                    <label for="presentado_por" class="form-label">Presentado Por:</label>
-                                    <input type="text" class="form-control" id="presentado_por" name="presentado_por" value="{{ old('presentado_por') }}" required>
-                                    @error('presentado_por')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                               <div class="mb-3">
+                                   <label for="presentado_por" class="form-label">Presentado Por:</label>
+                                        {{-- AÑADIDO: readonly --}}
+                                           <input type="text" class="form-control" id="presentado_por" name="presentado_por" value="{{ old('presentado_por') }}" required readonly>
+                                        @error('presentado_por')
+                                           <div class="text-danger">{{ $message }}</div>
+                                        @enderror
                                 </div>
 
-                                <div class="mb-3">
-                                    <label for="fecha_presentacion" class="form-label">Fecha de Presentación:</label>
-                                    <input type="date" class="form-control" id="fecha_presentacion" name="fecha_presentacion" value="{{ old('fecha_presentacion') }}" required>
-                                    @error('fecha_presentacion')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                                    <div class="mb-3">
+                                       <label for="fecha_presentacion" class="form-label">Fecha de Presentación:</label>
+                                       {{-- AÑADIDO: readonly --}}
+                                       <input type="date" class="form-control" id="fecha_presentacion" name="fecha_presentacion" value="{{ old('fecha_presentacion') }}" required readonly>
+                                        @error('fecha_presentacion')
+                                           <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                   </div>
 
                                 <div class="mb-3">
                                     <label for="comentario" class="form-label">Comentario:</label>
@@ -146,19 +149,19 @@
                             </button>
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save"></i> Guardar Digitalización
-                                @if ($errors->any())
-    <div class="alert alert-danger mt-3">
-        <h5>Por favor, corrige los siguientes errores:</h5>
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
                             </button>
                         </div>
                     </form>
+                    @if ($errors->any())
+                        <div class="alert alert-danger mt-3">
+                            <h5>Por favor, corrige los siguientes errores:</h5>
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -228,10 +231,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Mostrar primera imagen como preview si es imagen
             const firstFile = currentFiles[0];
-            if (firstFile.type.startsWith('image/')) {
+            if (firstFile && firstFile.type.startsWith('image/')) { // Asegurarse de que firstFile existe
                 mostrarPreviewImagen(firstFile);
-            } else {
+            } else if (firstFile) { // Si existe pero no es imagen, mostrar genérico
                 mostrarPreviewGenerico(firstFile);
+            } else { // Si no hay archivos después de algún manejo (ej. remover el único archivo)
+                limpiarPreview();
             }
         } else {
             limpiarPreview(); // Si no hay archivos, limpiar todo
@@ -327,46 +332,46 @@ document.addEventListener('DOMContentLoaded', function() {
     
     btnGenerarPdf.addEventListener('click', function() {
         // Recopila todos los datos del formulario
-    const formData = new FormData(digitalizacionForm);
+        const formData = new FormData(digitalizacionForm);
 
-    // Los archivos ya están adjuntados al FormData porque el input 'archivos'
-    // se actualiza en la función `updateFilesDisplay()`.
-    // Si tuvieras que adjuntarlos manualmente (ej. si currentFiles no se refleja en el input file):
-    // currentFiles.forEach((file, index) => {
-    //     formData.append(`archivos[${index}]`, file);
-    // });
+        // Los archivos ya están adjuntados al FormData porque el input 'archivos'
+        // se actualiza en la función `updateFilesDisplay()`.
+        // Si tuvieras que adjuntarlos manualmente (ej. si currentFiles no se refleja en el input file):
+        // currentFiles.forEach((file, index) => {
+        //      formData.append(`archivos[${index}]`, file);
+        // });
 
-    fetch("{{ route('digitalizar.generatePdf') }}", {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            // No se necesita el encabezado 'Content-Type' para FormData; el navegador lo establece automáticamente
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            // Maneja errores HTTP, por ejemplo, errores de validación
-            return response.json().then(errorData => {
-                console.error('Error al generar PDF:', errorData);
-                alert('Hubo un error al generar el PDF. Por favor, revise la consola para más detalles.');
-                throw new Error('Server error');
-            });
-        }
-        return response.blob(); // Obtén la respuesta como un Blob (datos binarios)
-    })
-    .then(blob => {
-        // Crea una URL para el Blob
-        const url = window.URL.createObjectURL(blob);
-        // Abre el PDF en una nueva pestaña
-        window.open(url, '_blank');
-        // Libera la URL cuando ya no sea necesaria
-        window.URL.revokeObjectURL(url);
-    })
-    .catch(error => {
-        console.error('Error en la solicitud de generación de PDF:', error);
-        alert('No se pudo generar el PDF. Revise la consola para más detalles.');
-    });
+        fetch("{{ route('digitalizar.generatePdf') }}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                // No se necesita el encabezado 'Content-Type' para FormData; el navegador lo establece automáticamente
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                // Maneja errores HTTP, por ejemplo, errores de validación
+                return response.text().then(text => { // Cambiado a text() para ver el contenido del error
+                    console.error('Error al generar PDF (respuesta del servidor no OK):', text);
+                    alert('Hubo un error al generar el PDF. Por favor, revise la consola para más detalles.');
+                    throw new Error('Server error: ' + text); // Lanza un error con el texto de la respuesta
+                });
+            }
+            return response.blob(); // Obtén la respuesta como un Blob (datos binarios)
+        })
+        .then(blob => {
+            // Crea una URL para el Blob
+            const url = window.URL.createObjectURL(blob);
+            // Abre el PDF en una nueva pestaña
+            window.open(url, '_blank');
+            // Libera la URL cuando ya no sea necesaria
+            window.URL.revokeObjectURL(url);
+        })
+        .catch(error => {
+            console.error('Error en la solicitud de generación de PDF:', error);
+            alert('No se pudo generar el PDF. Revise la consola para más detalles.');
+        });
     });
     
     document.getElementById('btn-cambiar-scanner').addEventListener('click', function() {
@@ -375,6 +380,76 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Inicializar el estado de los botones al cargar la página
     updateFilesDisplay();
-});
+
+    // --- FUNCIÓN DE AUTOCOMPLETADO ---
+    function autocompleteDigitalizacionFields() {
+        const nucInput = document.getElementById('nuc'); // Campo NUC en este formulario
+        const nuc = nucInput.value.trim();
+
+        // Referencias a los campos del formulario de digitalización que queremos autocompletar
+        const presentadoPorInput = document.getElementById('presentado_por');
+        const fechaPresentacionInput = document.getElementById('fecha_presentacion');
+        const tipoSelect = document.getElementById('tipo'); // Es un select
+        const comentarioTextarea = document.getElementById('comentario');
+
+        // Función para limpiar todos los campos autocompletables
+        const clearAutocompleteFields = () => {
+            presentadoPorInput.value = '';
+            fechaPresentacionInput.value = '';
+            tipoSelect.value = ''; // Limpiar el select
+            tipoSelect.disabled = false; // Dejarlo habilitado para que el usuario pueda seleccionar si no se autocompleta
+            comentarioTextarea.value = '';
+        };
+
+        if (nuc === '') {
+            clearAutocompleteFields(); // Si el NUC está vacío, limpiar los campos
+            return; // Salir de la función
+        }
+
+        // Realizar la petición AJAX al servidor Laravel
+        // La URL debe coincidir con la ruta que definimos en routes/web.php
+        fetch(`/recepcion/get-by-nuc?nuc=${encodeURIComponent(nuc)}`)
+            .then(response => {
+                if (!response.ok) {
+                    // Si la respuesta no es OK (ej. 404, 500), puedes lanzar un error o manejarlo.
+                    // Para depuración, puedes leer el texto del error:
+                    return response.text().then(text => { throw new Error(text) });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data) {
+                    // Mapeo Correcto de datos de 'recepciones' a campos de 'digitalizacion'
+                    presentadoPorInput.value = data.quien_presenta || ''; // Mapea quien_presenta de DB a presentado_por en formulario
+                    fechaPresentacionInput.value = data.fecha_oficio || ''; // Mapea fecha_oficio de DB a fecha_presentacion en formulario
+                    tipoSelect.value = data.tipo_audiencia || ''; // Mapea tipo_audiencia de DB a tipo en formulario
+                    comentarioTextarea.value = data.comentario || ''; // Mapea comentario de DB a comentario en formulario
+
+                    // Habilitar el select si se llenó un valor
+                    if (data.tipo_audiencia) {
+                        tipoSelect.disabled = false; // Asegurar que esté habilitado si se autocompleta
+                    } else {
+                        tipoSelect.disabled = false; // Asegurar que esté habilitado si no se autocompleta pero queremos que se pueda seleccionar
+                    }
+
+                    // Puedes añadir un mensaje de éxito si lo deseas
+                    // console.log('Datos de recepción encontrados y autocompletados.');
+                } else {
+                    // Si no se encontraron datos para el NUC
+                    clearAutocompleteFields(); // Limpiar campos si el NUC no existe
+                    alert('NUC no encontrado. Por favor, verifique el NUC o regístrelo en Recepción.');
+                }
+            })
+            .catch(error => {
+                console.error('Error al obtener datos de recepción:', error);
+                clearAutocompleteFields(); // Limpiar campos en caso de error
+                alert('Ocurrió un error al buscar el NUC. Intente nuevamente.');
+            });
+    }
+
+    // Hacer la función accesible globalmente para el 'onblur'
+    window.autocompleteDigitalizacionFields = autocompleteDigitalizacionFields;
+
+}); // Cierre de document.addEventListener('DOMContentLoaded')
 </script>
 @endsection

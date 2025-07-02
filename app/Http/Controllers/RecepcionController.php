@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+use Carbon\Carbon; // Asegúrate de que esta línea esté presente
 
 class RecepcionController extends Controller
 {
@@ -26,7 +26,13 @@ class RecepcionController extends Controller
      */
     public function create()
     {
-        return view('dashboard.recepcion');
+        // Generar el NUC automáticamente al cargar el formulario
+        $nuc = $this->generateNUC();
+        
+        // **IMPORTANTE:** Asegúrate de que tu vista exista en esta ruta: resources/views/dashboard/recepciones/create.blade.php
+        // Si tu vista se llama de otra forma, por ejemplo, resources/views/dashboard/recepcion.blade.php,
+        // ajusta el nombre aquí: return view('dashboard.recepcion', compact('nuc'));
+        return view('dashboard.recepcion', compact('nuc'));
     }
 
     /**
@@ -35,8 +41,11 @@ class RecepcionController extends Controller
     public function store(Request $request)
     {
         // Validación de los datos
+        // Si el campo NUC en la vista es 'readonly' y siempre lo generas,
+        // puedes considerar relajar la validación de 'nuc' aquí si no quieres que el usuario lo cambie.
+        // Por ahora, mantengo tu validación original para no afectar el comportamiento existente.
         $validator = Validator::make($request->all(), [
-            'nuc' => 'required|string|max:255',
+            'nuc' => 'required|string|max:255', // Se espera que este valor venga del formulario (el NUC autogenerado)
             'tipo_audiencia' => 'required|string|max:255',
             'quien_presenta' => 'required|string|max:255',
             'numero_oficio' => 'required|string|max:100',
@@ -88,7 +97,7 @@ class RecepcionController extends Controller
         try {
             // Preparar los datos para insertar
             $data = [
-                'nuc' => $request->nuc,
+                'nuc' => $request->nuc, // El NUC ya viene del formulario (autogenerado y readonly)
                 'tipo_audiencia' => $request->tipo_audiencia,
                 'quien_presenta' => $request->quien_presenta,
                 'numero_oficio' => $request->numero_oficio,
@@ -252,5 +261,47 @@ class RecepcionController extends Controller
             ->paginate(10);
         
         return view('dashboard.recepciones.index', compact('recepciones', 'query'));
+    }
+
+    /**
+     * Genera un NUC aleatorio con el formato "XX/XX/XXX/XXXXX/AAAA".
+     *
+     * @return string
+     */
+    private function generateNUC()
+    {
+        $part1 = str_pad(rand(1, 99), 2, '0', STR_PAD_LEFT);
+        $part2 = str_pad(rand(1, 99), 2, '0', STR_PAD_LEFT);
+        $part3 = str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT);
+        $part4 = str_pad(rand(1, 99999), 5, '0', STR_PAD_LEFT);
+        $year = Carbon::now()->year;
+
+        return "{$part1}/{$part2}/{$part3}/{$part4}/{$year}";
+    }
+
+    /**
+     * Busca una recepción por su NUC y devuelve los datos en formato JSON.
+     * Utilizado para autocompletar campos en otros formularios.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getRecepcionByNUC(Request $request)
+    {
+        $nuc = $request->query('nuc'); // Obtener el NUC de los parámetros de la URL
+
+        if (empty($nuc)) {
+            return response()->json(null); // Devolver null si el NUC está vacío
+        }
+
+        // Buscar la recepción en la base de datos
+        // Asegúrate de que la tabla 'recepciones' y la columna 'nuc' coincidan con tu DB.
+        // También, asegúrate de que los nombres de las columnas que esperas ('quien_presenta', 'fecha_oficio', 'tipo_audiencia', 'comentario') sean correctos.
+        $recepcion = DB::table('recepciones')
+                        ->where('nuc', $nuc)
+                        ->first(); // Usa first() para obtener un solo registro
+
+        // Devolver la recepción como JSON o null si no se encontró
+        return response()->json($recepcion);
     }
 }

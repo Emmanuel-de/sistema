@@ -37,6 +37,7 @@ Route::resource('recepciones', RecepcionController::class, [
     ]
 ]);
 
+Route::get('/recepcion/get-by-nuc', [RecepcionController::class, 'getRecepcionByNUC'])->name('recepcion.get_by_nuc');
 // RUTAS DE DIGITALIZACIÓN
 // ==============================================
 

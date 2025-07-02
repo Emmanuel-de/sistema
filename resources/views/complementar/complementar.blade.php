@@ -48,9 +48,6 @@
         <a href="{{ route('complementar.create') }}" class="btn btn-outline-success">
             <i class="bi bi-arrow-clockwise"></i> Volver a Cargar Datos
         </a>
-        <a href="#" class="btn btn-outline-info"> {{-- Reemplaza # con la ruta real si existe --}}
-            <i class="bi bi-upc-scan"></i> Digitalizar de nuevo
-        </a>
     </div>
 
     {{-- DOS COLUMNAS: FORMULARIO Y TABLA --}}

@@ -43,7 +43,7 @@
                                         <th>Quién Presenta</th>
                                         <th>No. Oficio</th>
                                         <th>Fecha Oficio</th>
-                                        <th>Fojas</th>
+                                        <th>Hojas</th>
                                         <th>Anexos</th>
                                         <th>Acción Penal</th>
                                         <th>Fecha Registro</th>
