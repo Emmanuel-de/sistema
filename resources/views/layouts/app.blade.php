@@ -104,9 +104,9 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{{ route('recepcion.index') }}">Recepción</a></li>
-                            <li><a class="dropdown-item" href="{{ route('digitalizar.create') }}">Digitalizar</a></li>
-                            <li><a class="dropdown-item" href="{{ route('complementar.create')}}">Complementar</a></li>
-                            <li><a class="dropdown-item" href="#">TABLERO</a></li>
+                            <li><a class="dropdown-item" href="{{ route('digitalizar.index') }}">Digitalizar</a></li>
+                            <li><a class="dropdown-item" href="{{ route('complementar.index')}}">Complementar</a></li>
+                            <li><a class="dropdown-item" href="#"></a></li>
                             <li><hr class="dropdown-divider"></li>
                             <h6 class="dropdown-header">OPCIONES DE RECEPCIÓN</h6>
                             <li><a class="dropdown-item" href="#">TABLERO</a></li>

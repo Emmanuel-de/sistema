@@ -93,6 +93,9 @@ Route::post('/digitalizar/generar-pdf', [DigitalizacionController::class, 'gener
 // ==============================================
 // RUTAS para complementar
 // ==============================================
+
+
+Route::get('/complementar/getRecepcionData', [App\Http\Controllers\ComplementarController::class, 'getRecepcionData'])->name('complementar.getRecepcionData');
 // Ruta GET para mostrar el formulario de creación (ej. /complementar)
 Route::get('/complementar', [ComplementarController::class, 'create'])->name('complementar.create');
 

@@ -30,30 +30,10 @@
         </div>
     @endif
 
-
-    {{-- BOTONES SUPERIORES --}}
-    <div class="d-flex flex-wrap gap-3 my-3">
-        <a href="#" class="btn btn-outline-danger"> {{-- Reemplaza # con la ruta real si existe --}}
-            <i class="bi bi-file-earmark-pdf-fill"></i> Ver PDF
-        </a>
-        <a href="#" class="btn btn-outline-primary"> {{-- Reemplaza # con la ruta real si existe --}}
-            <i class="bi bi-save2-fill"></i> Complementar y Turnar
-        </a>
-        <a href="#" class="btn btn-outline-secondary"> {{-- Reemplaza # con la ruta real si existe --}}
-            <i class="bi bi-pencil-fill"></i> Editar
-        </a>
-        <a href="#" class="btn btn-outline-danger"> {{-- Reemplaza # con la ruta real si existe --}}
-            <i class="bi bi-x-circle-fill"></i> Borrar
-        </a>
-        <a href="{{ route('complementar.create') }}" class="btn btn-outline-success">
-            <i class="bi bi-arrow-clockwise"></i> Volver a Cargar Datos
-        </a>
-    </div>
-
-    {{-- DOS COLUMNAS: FORMULARIO Y TABLA --}}
-    <div class="row">
+    {{-- UNA COLUMNA: FORMULARIO --}}
+    <div class="row justify-content-center"> {{-- Centramos el formulario --}}
         {{-- FORMULARIO --}}
-        <div class="col-md-6 mb-4">
+        <div class="col-md-8 mb-4"> {{-- Ajustado a col-md-8 para que sea más amplio --}}
             <div class="card shadow-sm rounded-4 h-100">
                 <div class="card-body">
                     <h6 class="fw-bold border-bottom pb-2 mb-3">Información General</h6>
@@ -70,15 +50,14 @@
                             <div class="col-md-12">
                                <label for="tipo_documento" class="form-label">Tipo de Documento:</label>
                                <select name="tipo_documento" id="tipo_documento" class="form-select @error('tipo_documento') is-invalid @enderror">
-                                   <option value="">Seleccione una opción</option>
-                                   {{-- ¡CORREGIDO! Valores en minúsculas para coincidir con la migración y el controlador --}}
-                                   <option value="oficio" {{ old('tipo_documento') == 'oficio' ? 'selected' : '' }}>Oficio</option>
-                                   <option value="memorandum" {{ old('tipo_documento') == 'memorandum' ? 'selected' : '' }}>Memorandum</option>
-                                   <option value="circular" {{ old('tipo_documento') == 'circular' ? 'selected' : '' }}>Circular</option>
-                                   <option value="informe" {{ old('tipo_documento') == 'informe' ? 'selected' : '' }}>Informe</option>
+                                    <option value="">Seleccione una opción</option>
+                                    <option value="oficio" {{ old('tipo_documento') == 'oficio' ? 'selected' : '' }}>Oficio</option>
+                                    <option value="memorandum" {{ old('tipo_documento') == 'memorandum' ? 'selected' : '' }}>Memorandum</option>
+                                    <option value="circular" {{ old('tipo_documento') == 'circular' ? 'selected' : '' }}>Circular</option>
+                                    <option value="informe" {{ old('tipo_documento') == 'informe' ? 'selected' : '' }}>Informe</option>
                                </select>
                                @error('tipo_documento')
-                                   <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                @enderror
                             </div>
                             <div class="col-md-12">
@@ -104,7 +83,6 @@
                             </div>
                             <div class="col-md-12">
                                 <label for="numero_hojas" class="form-label">Número de Hojas:</label>
-                                {{-- ¡CORREGIDO! 'name' a 'numero_hojas' --}}
                                 <input type="number" name="numero_hojas" id="numero_hojas" class="form-control @error('numero_hojas') is-invalid @enderror" value="{{ old('numero_hojas') }}">
                                 @error('numero_hojas')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -112,7 +90,6 @@
                             </div>
                             <div class="col-md-12">
                                 <label for="numero_anexos" class="form-label">Número de Anexos:</label>
-                                {{-- ¡CORREGIDO! 'name' a 'numero_anexos' --}}
                                 <input type="number" name="numero_anexos" id="numero_anexos" class="form-control @error('numero_anexos') is-invalid @enderror" value="{{ old('numero_anexos') }}">
                                 @error('numero_anexos')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -143,7 +120,6 @@
                                 <label for="tipo_audiencia" class="form-label">Tipo de Audiencia:</label>
                                 <select name="tipo_audiencia" id="tipo_audiencia" class="form-select @error('tipo_audiencia') is-invalid @enderror">
                                     <option value="">Seleccione una opción</option>
-                                    {{-- ¡CORREGIDO! Valores en minúsculas para coincidir con la migración y el controlador --}}
                                     <option value="inicial" {{ old('tipo_audiencia') == 'inicial' ? 'selected' : '' }}>Inicial</option>
                                     <option value="intermedia" {{ old('tipo_audiencia') == 'intermedia' ? 'selected' : '' }}>Intermedia</option>
                                     <option value="juicio" {{ old('tipo_audiencia') == 'juicio' ? 'selected' : '' }}>Juicio</option>
@@ -155,7 +131,6 @@
                             </div>
                             <div class="col-md-12">
                                 <label for="numero_amparo" class="form-label">N. de Amparo:</label>
-                                {{-- ¡CORREGIDO! 'name' a 'numero_amparo' --}}
                                 <input type="text" name="numero_amparo" id="numero_amparo" class="form-control @error('numero_amparo') is-invalid @enderror" value="{{ old('numero_amparo') }}">
                                 @error('numero_amparo')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -163,7 +138,6 @@
                             </div>
                             <div class="col-md-12">
                                 <label for="precedencia" class="form-label">Precedencia:</label>
-                                {{-- ¡CORREGIDO! 'name' a 'precedencia' --}}
                                 <input type="text" name="precedencia" id="precedencia" class="form-control @error('precedencia') is-invalid @enderror" value="{{ old('precedencia') }}">
                                 @error('precedencia')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -186,7 +160,6 @@
                                 <label for="solicita_informe" class="form-label">Solicita Informe:</label>
                                 <select name="solicita_informe" id="solicita_informe" class="form-select @error('solicita_informe') is-invalid @enderror">
                                     <option value="">Seleccione una opción</option>
-                                    {{-- ¡CORREGIDO! Valores en minúsculas para coincidir con la migración y el controlador --}}
                                     <option value="si" {{ old('solicita_informe') == 'si' ? 'selected' : '' }}>Sí</option>
                                     <option value="no" {{ old('solicita_informe') == 'no' ? 'selected' : '' }}>No</option>
                                 </select>
@@ -205,51 +178,79 @@
                 </div>
             </div>
         </div>
-
-        {{-- TABLA --}}
-        <div class="col-md-6">
-            <div class="card shadow-sm rounded-4 h-100">
-                <div class="card-body">
-                    <h6 class="fw-bold border-bottom pb-2 mb-3">Registros</h6>
-                    <div class="table-responsive">
-                        <table class="table table-bordered text-center align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Folio Único</th> {{-- Ajustado el nombre para que coincida --}}
-                                    <th>Tipo Documento</th>
-                                    <th>NUC</th> {{-- Ajustado el nombre para que coincida --}}
-                                    <th>Fecha Recepción</th> {{-- Ajustado el nombre para que coincida --}}
-                                    <th>Quién Presenta</th> {{-- Ajustado el nombre para que coincida --}}
-                                    <th>No. Hojas</th> {{-- Ajustado el nombre para que coincida --}}
-                                    <th>No. Anexos</th> {{-- Ajustado el nombre para que coincida --}}
-                                    <th>Descripción</th> {{-- Ajustado el nombre para que coincida --}}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {{-- Aquí deberías iterar sobre los documentos si los pasas a la vista --}}
-                                @forelse ($documentos ?? [] as $documento)
-                                    <tr>
-                                        <td>{{ $documento->folio_unico }}</td>
-                                        <td>{{ $documento->tipo_documento }}</td>
-                                        <td>{{ $documento->nuc }}</td>
-                                        <td>{{ $documento->fecha_recepcion }}</td>
-                                        <td>{{ $documento->quien_presenta }}</td>
-                                        <td>{{ $documento->numero_hojas }}</td>
-                                        <td>{{ $documento->numero_anexos }}</td>
-                                        <td>{{ $documento->descripcion }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="8" class="text-muted">Sin registros aún</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const nucInput = document.getElementById('nuc');
+
+        // Función principal para autocompletar
+        function autocompleteRecepcionFields() {
+            const nuc = nucInput.value.trim();
+
+            if (nuc.length > 0) { // Solo si hay algo escrito en el NUC
+                fetch(`{{ route('complementar.getRecepcionData') }}?nuc=${nuc}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            if (response.status === 404) {
+                                console.log('No se encontraron datos para el NUC:', nuc);
+                            } else {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data && !data.error && !data.message) {
+                            console.log('Datos recibidos para NUC:', data);
+
+                            const fieldsToAutocomplete = {
+                                // Mapeo de nombres de columna de 'recepciones' a IDs de campos en 'complementar.blade.php'
+                                'fecha_oficio': data.fecha_oficio,
+                                'quien_presenta': data.quien_presenta,
+                                'numero_hojas': data.numero_fojas, // Mapea 'numero_fojas' de recepciones a 'numero_hojas' del formulario
+                                'numero_anexos': data.numero_anexos,
+                                'descripcion': data.descripcion_anexos, // Mapea 'descripcion_anexos' de recepciones a 'descripcion' del formulario
+                                // Si necesitas autocompletar más campos de 'recepciones' en el formulario 'complementar',
+                                // asegúrate de que existan en la tabla 'recepciones' y añádelos aquí.
+                                'tipo_audiencia': data.tipo_audiencia,
+                                'numero_oficio': data.numero_oficio,
+                            };
+
+                            for (const fieldId in fieldsToAutocomplete) {
+                                const inputField = document.getElementById(fieldId);
+                                if (inputField && fieldsToAutocomplete[fieldId] !== undefined && fieldsToAutocomplete[fieldId] !== null) {
+                                    if (!inputField.value || inputField.value === '') {
+                                        if (inputField.tagName === 'SELECT') {
+                                            const optionExists = Array.from(inputField.options).some(option => option.value === fieldsToAutocomplete[fieldId]);
+                                            if (optionExists) {
+                                                inputField.value = fieldsToAutocomplete[fieldId];
+                                            } else {
+                                                console.warn(`Opción "${fieldsToAutocomplete[fieldId]}" no encontrada para el select "${fieldId}".`);
+                                            }
+                                        } else {
+                                            inputField.value = fieldsToAutocomplete[fieldId];
+                                        }
+                                    }
+                                }
+                            }
+                        } else if (data.message) {
+                             console.log('Mensaje del servidor:', data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error al obtener datos de recepción:', error);
+                    });
+            }
+        }
+
+        nucInput.addEventListener('blur', autocompleteRecepcionFields);
+
+        if (nucInput.value.trim() !== '') {
+            autocompleteRecepcionFields();
+        }
+    });
+</script>
 @endsection
+
