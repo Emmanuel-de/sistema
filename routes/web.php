@@ -5,6 +5,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RecepcionController;
 use App\Http\Controllers\DigitalizacionController;
 use App\Http\Controllers\ComplementarController;
+use App\Http\Controllers\PendienteController;
+use App\Http\Controllers\CarpetanucController;
+
 // Ruta principal del dashboard
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -125,3 +128,83 @@ Route::prefix('complementar')->name('complementar.')->group(function () {
     // Exportar documentos (ej. /complementar/exportar)
     Route::get('/exportar', [ComplementarController::class, 'export'])->name('export');
 });
+
+// ==============================================
+// RUTAS para Pendiente
+// ==============================================
+
+// Rutas específicas ANTES del resource (para evitar conflictos)
+Route::get('/pendientes/search', [PendienteController::class, 'buscar'])->name('pendientes.search');
+Route::get('/pendientes/estadisticas', [PendienteController::class, 'estadisticas'])->name('pendientes.estadisticas');
+Route::post('/pendientes/liberar', [PendienteController::class, 'liberar'])->name('pendientes.liberar');
+Route::post('/pendientes/rechazar', [PendienteController::class, 'rechazar'])->name('pendientes.rechazar');
+Route::post('/pendientes/turnar', [PendienteController::class, 'turnar'])->name('pendientes.turnar');
+Route::post('/pendientes/generar', [PendienteController::class, 'generar'])->name('pendientes.generar');
+Route::post('/pendientes/actualizar-estado-masivo', [PendienteController::class, 'actualizarEstadoMasivo'])->name('pendientes.actualizar-estado-masivo');
+
+// CRUD completo de pendientes usando resource
+Route::resource('pendientes', PendienteController::class, [
+    'names' => [
+        'index' => 'pendientes.index',
+        'create' => 'pendientes.create',
+        'store' => 'pendientes.store',
+        'show' => 'pendientes.show',
+        'edit' => 'pendientes.edit',
+        'update' => 'pendientes.update',
+        'destroy' => 'pendientes.destroy'
+    ]
+]);
+
+// ==============================================
+// RUTAS ALTERNATIVAS PARA PENDIENTES
+// ==============================================
+
+// Rutas alternativas más amigables para pendientes
+Route::get('/docs-pendientes', [PendienteController::class, 'index'])->name('docs-pendientes.index');
+Route::get('/mis-pendientes', function () {
+    return redirect()->route('pendientes.index', ['asignado_a' => auth()->id()]);
+})->name('mis-pendientes');
+Route::get('/urgentes', function () {
+    return redirect()->route('pendientes.index', ['prioridad' => 'urgente']);
+})->name('urgentes');
+Route::get('/liberados-hoy', function () {
+    return redirect()->route('pendientes.index', ['fecha_liberacion' => today()]);
+})->name('liberados-hoy');
+
+// Descargas de reportes
+Route::get('/pendientes/reporte/{tipo}', function($tipo) {
+    // Implementar lógica de descarga de reportes
+    // $tipo puede ser: pdf, excel, csv
+    return response()->json(['message' => 'Funcionalidad de descarga en desarrollo']);
+})->where('tipo', 'pdf|excel|csv')->name('pendientes.descargar-reporte');
+
+
+
+// ==============================================
+// RUTAS Carpeta de busqueda 
+// ==============================================
+
+// Ruta para mostrar la vista index de carpetanuc
+Route::get('/carpetanuc', [CarpetanucController::class, 'index'])->name('carpetanuc.index');
+
+// Rutas adicionales para el CRUD completo de carpetanuc
+Route::resource('carpetanuc', CarpetanucController::class);
+
+// O si prefieres definir rutas específicas individualmente:
+/*
+Route::get('/carpetanuc', [CarpetanucController::class, 'index'])->name('carpetanuc.index');
+Route::get('/carpetanuc/create', [CarpetanucController::class, 'create'])->name('carpetanuc.create');
+Route::post('/carpetanuc', [CarpetanucController::class, 'store'])->name('carpetanuc.store');
+Route::get('/carpetanuc/{id}', [CarpetanucController::class, 'show'])->name('carpetanuc.show');
+Route::get('/carpetanuc/{id}/edit', [CarpetanucController::class, 'edit'])->name('carpetanuc.edit');
+Route::put('/carpetanuc/{id}', [CarpetanucController::class, 'update'])->name('carpetanuc.update');
+Route::delete('/carpetanuc/{id}', [CarpetanucController::class, 'destroy'])->name('carpetanuc.destroy');
+*/
+
+// Ruta específica para la búsqueda de carpetas (si necesitas manejar el formulario de búsqueda)
+Route::post('/carpetanuc/buscar', [CarpetanucController::class, 'buscar'])->name('carpetanuc.buscar');
+
+// Rutas adicionales para funcionalidades específicas
+Route::get('/carpetanuc/audiencia/{id}', [CarpetanucController::class, 'audiencia'])->name('carpetanuc.audiencia');
+Route::post('/carpetanuc/generar-trabajo', [CarpetanucController::class, 'generarTrabajo'])->name('carpetanuc.generar-trabajo');
+Route::get('/carpetanuc/datos-imputado/{id}', [CarpetanucController::class, 'datosImputado'])->name('carpetanuc.datos-imputado');
