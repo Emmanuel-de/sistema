@@ -128,15 +128,42 @@ class CarpetanucController extends Controller
         $numeroCarpeta = $request->input('carpeta_number');
         $separacionProcesos = $request->input('separacion_procesos', false);
 
-        // Buscar carpeta por número exacto o parcial
+        // Buscar en todas las tablas relacionadas por NUC
+        $recepcion = \App\Models\Recepcion::where('nuc', $numeroCarpeta)->first();
+        $digitalizaciones = \App\Models\Digitalizacion::where('nuc', $numeroCarpeta)->get();
+        $complementarios = \App\Models\Complementar::where('nuc', $numeroCarpeta)->get();
+
+        // También buscar en carpetanucs por número de carpeta
         $carpeta = Carpetanuc::where('numero_carpeta', $numeroCarpeta)
                             ->orWhere('numero_carpeta', 'like', "%{$numeroCarpeta}%")
                             ->first();
 
-        if ($carpeta) {
-            return response()->json([
+        // Verificar si se encontró información en alguna tabla
+        $encontrado = $recepcion || $digitalizaciones->count() > 0 || $complementarios->count() > 0 || $carpeta;
+
+        if ($encontrado) {
+            $resultado = [
                 'success' => true,
                 'data' => [
+                    'nuc' => $numeroCarpeta,
+                    'separacion_procesos' => $separacionProcesos,
+                    'encontrada' => true,
+                    'carpeta_info' => null,
+                    'recepcion' => null,
+                    'digitalizaciones' => [],
+                    'complementarios' => [],
+                    'resumen' => [
+                        'total_digitalizaciones' => $digitalizaciones->count(),
+                        'total_complementarios' => $complementarios->count(),
+                        'tiene_recepcion' => $recepcion ? true : false,
+                        'tiene_carpeta' => $carpeta ? true : false
+                    ]
+                ]
+            ];
+
+            // Agregar información de la carpeta si existe
+            if ($carpeta) {
+                $resultado['data']['carpeta_info'] = [
                     'id' => $carpeta->id,
                     'numero_carpeta' => $carpeta->numero_carpeta,
                     'tipo_carpeta' => $carpeta->tipo_carpeta,
@@ -147,21 +174,72 @@ class CarpetanucController extends Controller
                     'municipio' => $carpeta->municipio,
                     'agencia' => $carpeta->agencia,
                     'separacion_procesos' => $carpeta->separacion_procesos,
-                    'imputados' => $carpeta->imputados_lista,
-                    'victimas' => $carpeta->victimas_lista,
-                    'audiencias' => $carpeta->audiencias_lista,
-                    'documentos' => $carpeta->documentos_lista,
-                    'total_folios' => $carpeta->total_folios,
-                    'encontrada' => true,
-                ]
-            ]);
+                ];
+            }
+
+            // Agregar información de recepción si existe
+            if ($recepcion) {
+                $resultado['data']['recepcion'] = [
+                    'id' => $recepcion->id,
+                    'nuc' => $recepcion->nuc,
+                    'fecha_oficio' => $recepcion->fecha_oficio,
+                    'quien_presenta' => $recepcion->quien_presenta,
+                    'numero_fojas' => $recepcion->numero_fojas,
+                    'numero_anexos' => $recepcion->numero_anexos,
+                    'descripcion_anexos' => $recepcion->descripcion_anexos,
+                    'tipo_audiencia' => $recepcion->tipo_audiencia,
+                    'numero_oficio' => $recepcion->numero_oficio,
+                ];
+            }
+
+            // Agregar digitalizaciones
+            if ($digitalizaciones->count() > 0) {
+                $resultado['data']['digitalizaciones'] = $digitalizaciones->map(function ($dig) {
+                    return [
+                        'id' => $dig->id,
+                        'tipo' => $dig->tipo,
+                        'tipo_nombre' => $dig->tipo_nombre,
+                        'nuc' => $dig->nuc,
+                        'presentado_por' => $dig->presentado_por,
+                        'fecha_presentacion' => $dig->fecha_presentacion,
+                        'comentario' => $dig->comentario,
+                        'estado' => $dig->estado,
+                        'estado_nombre' => $dig->estado_nombre,
+                        'total_archivos' => $dig->total_archivos,
+                        'ocr' => $dig->ocr,
+                        'visor' => $dig->visor,
+                    ];
+                })->toArray();
+            }
+
+            // Agregar complementarios
+            if ($complementarios->count() > 0) {
+                $resultado['data']['complementarios'] = $complementarios->map(function ($comp) {
+                    return [
+                        'id' => $comp->id,
+                        'nuc' => $comp->nuc,
+                        'tipo_documento' => $comp->tipo_documento,
+                        'fecha_recepcion' => $comp->fecha_recepcion,
+                        'quien_presenta' => $comp->quien_presenta,
+                        'numero_hojas' => $comp->numero_hojas,
+                        'numero_anexos' => $comp->numero_anexos,
+                        'descripcion' => $comp->descripcion,
+                        'numero_oficio' => $comp->numero_oficio,
+                        'fecha_oficio' => $comp->fecha_oficio,
+                        'tipo_audiencia' => $comp->tipo_audiencia,
+                        'estado' => $comp->estado,
+                    ];
+                })->toArray();
+            }
+
+            return response()->json($resultado);
         }
 
         return response()->json([
             'success' => false,
-            'message' => 'Carpeta no encontrada',
+            'message' => 'No se encontró información para el NUC proporcionado',
             'data' => [
-                'numero_carpeta' => $numeroCarpeta,
+                'nuc' => $numeroCarpeta,
                 'separacion_procesos' => $separacionProcesos,
                 'encontrada' => false,
             ]

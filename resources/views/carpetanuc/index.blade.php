@@ -241,6 +241,82 @@
         flex-wrap: wrap;
     }
 }
+
+.nuc-folder {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+}
+
+.folder-header {
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.document-section {
+    margin-bottom: 1rem;
+    border: 1px solid #e3e6f0;
+    border-radius: 0.25rem;
+    background-color: white;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e3e6f0;
+    font-weight: 600;
+}
+
+.section-content {
+    padding: 0.75rem;
+}
+
+.document-item {
+    margin-bottom: 0.5rem;
+}
+
+.document-item p {
+    margin-bottom: 0.25rem;
+}
+
+.search-summary {
+    padding: 1rem;
+}
+
+.stat-card {
+    text-align: center;
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    background-color: #f8f9fa;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.toggle-section {
+    margin-left: auto;
+}
+
+.badge {
+    font-size: 0.75rem;
+}
 </style>
 
 <script>
@@ -273,15 +349,16 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             console.log('Resultado:', data);
             if (data.success) {
-                alert('Carpeta encontrada exitosamente');
-                // Aquí puedes actualizar la interfaz con los datos encontrados
+                displaySearchResults(data.data);
             } else {
-                alert('No se encontró la carpeta');
+                alert('No se encontró información para el NUC: ' + carpetaNumber);
+                clearSearchResults();
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error al buscar la carpeta');
+            alert('Error al buscar la información');
+            clearSearchResults();
         });
     });
 
@@ -329,6 +406,237 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Eliminar elemento');
             }
         });
+    });
+
+    // Función para mostrar los resultados de búsqueda
+    function displaySearchResults(data) {
+        const audienciaSection = document.querySelector('.col-md-6:nth-child(2) .card-body');
+        const infoSection = document.querySelector('.col-12 .card-body');
+
+        // Limpiar contenido anterior
+        audienciaSection.innerHTML = '';
+        infoSection.innerHTML = '';
+
+        // Crear estructura de carpeta para el NUC
+        const folderStructure = `
+            <div class="nuc-folder">
+                <div class="folder-header">
+                    <i class="fas fa-folder text-warning me-2"></i>
+                    <strong>NUC: ${data.nuc}</strong>
+                    <span class="badge bg-info ms-2">${data.resumen.total_digitalizaciones + data.resumen.total_complementarios} documentos</span>
+                </div>
+                <div class="folder-content ms-4 mt-2">
+                    ${data.recepcion ? createRecepcionSection(data.recepcion) : ''}
+                    ${data.digitalizaciones.length > 0 ? createDigitalizacionesSection(data.digitalizaciones) : ''}
+                    ${data.complementarios.length > 0 ? createComplementariosSection(data.complementarios) : ''}
+                    ${data.carpeta_info ? createCarpetaInfoSection(data.carpeta_info) : ''}
+                </div>
+            </div>
+        `;
+
+        audienciaSection.innerHTML = folderStructure;
+
+        // Mostrar resumen en la sección de información
+        const resumenInfo = `
+            <div class="search-summary">
+                <h6><i class="fas fa-info-circle me-2"></i>Resumen de información encontrada</h6>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-number">${data.resumen.tiene_recepcion ? '1' : '0'}</div>
+                            <div class="stat-label">Recepción</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-number">${data.resumen.total_digitalizaciones}</div>
+                            <div class="stat-label">Digitalizaciones</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-number">${data.resumen.total_complementarios}</div>
+                            <div class="stat-label">Complementarios</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-number">${data.resumen.tiene_carpeta ? '1' : '0'}</div>
+                            <div class="stat-label">Carpeta</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        infoSection.innerHTML = resumenInfo;
+    }
+
+    function createRecepcionSection(recepcion) {
+        return `
+            <div class="document-section">
+                <div class="section-header">
+                    <i class="fas fa-inbox text-primary me-2"></i>
+                    <strong>Recepción</strong>
+                    <button class="btn btn-sm btn-outline-secondary ms-2 toggle-section">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+                <div class="section-content ms-4">
+                    <p><strong>Presentado por:</strong> ${recepcion.quien_presenta || 'N/A'}</p>
+                    <p><strong>Fecha oficio:</strong> ${recepcion.fecha_oficio || 'N/A'}</p>
+                    <p><strong>Tipo audiencia:</strong> ${recepcion.tipo_audiencia || 'N/A'}</p>
+                    <p><strong>Número fojas:</strong> ${recepcion.numero_fojas || 'N/A'}</p>
+                    <p><strong>Número anexos:</strong> ${recepcion.numero_anexos || 'N/A'}</p>
+                </div>
+            </div>
+        `;
+    }
+
+    function createDigitalizacionesSection(digitalizaciones) {
+        let html = `
+            <div class="document-section">
+                <div class="section-header">
+                    <i class="fas fa-file-pdf text-danger me-2"></i>
+                    <strong>Digitalizaciones (${digitalizaciones.length})</strong>
+                    <button class="btn btn-sm btn-outline-secondary ms-2 toggle-section">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+                <div class="section-content ms-4">
+        `;
+
+        digitalizaciones.forEach((dig, index) => {
+            html += `
+                <div class="document-item">
+                    <p><strong>Digitalización ${index + 1}:</strong></p>
+                    <p class="ms-3"><strong>Tipo:</strong> ${dig.tipo_nombre}</p>
+                    <p class="ms-3"><strong>Presentado por:</strong> ${dig.presentado_por || 'N/A'}</p>
+                    <p class="ms-3"><strong>Fecha:</strong> ${dig.fecha_presentacion || 'N/A'}</p>
+                    <p class="ms-3"><strong>Estado:</strong> <span class="badge bg-${getEstadoBadgeColor(dig.estado)}">${dig.estado_nombre}</span></p>
+                    <p class="ms-3"><strong>Total archivos:</strong> ${dig.total_archivos || 0}</p>
+                    ${dig.comentario ? `<p class="ms-3"><strong>Comentario:</strong> ${dig.comentario}</p>` : ''}
+                </div>
+                ${index < digitalizaciones.length - 1 ? '<hr>' : ''}
+            `;
+        });
+
+        html += `
+                </div>
+            </div>
+        `;
+
+        return html;
+    }
+
+    function createComplementariosSection(complementarios) {
+        let html = `
+            <div class="document-section">
+                <div class="section-header">
+                    <i class="fas fa-file-alt text-success me-2"></i>
+                    <strong>Datos Complementarios (${complementarios.length})</strong>
+                    <button class="btn btn-sm btn-outline-secondary ms-2 toggle-section">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+                <div class="section-content ms-4">
+        `;
+
+        complementarios.forEach((comp, index) => {
+            html += `
+                <div class="document-item">
+                    <p><strong>Complementario ${index + 1}:</strong></p>
+                    <p class="ms-3"><strong>Tipo documento:</strong> ${comp.tipo_documento || 'N/A'}</p>
+                    <p class="ms-3"><strong>Quien presenta:</strong> ${comp.quien_presenta || 'N/A'}</p>
+                    <p class="ms-3"><strong>Fecha recepción:</strong> ${comp.fecha_recepcion || 'N/A'}</p>
+                    <p class="ms-3"><strong>Número hojas:</strong> ${comp.numero_hojas || 'N/A'}</p>
+                    <p class="ms-3"><strong>Estado:</strong> <span class="badge bg-info">${comp.estado || 'N/A'}</span></p>
+                    ${comp.descripcion ? `<p class="ms-3"><strong>Descripción:</strong> ${comp.descripcion}</p>` : ''}
+                </div>
+                ${index < complementarios.length - 1 ? '<hr>' : ''}
+            `;
+        });
+
+        html += `
+                </div>
+            </div>
+        `;
+
+        return html;
+    }
+
+    function createCarpetaInfoSection(carpeta) {
+        return `
+            <div class="document-section">
+                <div class="section-header">
+                    <i class="fas fa-folder text-warning me-2"></i>
+                    <strong>Información de Carpeta</strong>
+                    <button class="btn btn-sm btn-outline-secondary ms-2 toggle-section">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+                <div class="section-content ms-4">
+                    <p><strong>Número:</strong> ${carpeta.numero_carpeta}</p>
+                    <p><strong>Tipo:</strong> ${carpeta.tipo_carpeta || 'N/A'}</p>
+                    <p><strong>Estado:</strong> <span class="badge bg-${carpeta.estado === 'activa' ? 'success' : 'secondary'}">${carpeta.estado}</span></p>
+                    <p><strong>Fiscal asignado:</strong> ${carpeta.fiscal_asignado || 'N/A'}</p>
+                    <p><strong>Delito principal:</strong> ${carpeta.delito_principal || 'N/A'}</p>
+                    <p><strong>Municipio:</strong> ${carpeta.municipio || 'N/A'}</p>
+                    <p><strong>Agencia:</strong> ${carpeta.agencia || 'N/A'}</p>
+                </div>
+            </div>
+        `;
+    }
+
+    function getEstadoBadgeColor(estado) {
+        switch(estado) {
+            case 'completado': return 'success';
+            case 'procesando': return 'warning';
+            case 'error': return 'danger';
+            default: return 'secondary';
+        }
+    }
+
+    function clearSearchResults() {
+        const audienciaSection = document.querySelector('.col-md-6:nth-child(2) .card-body');
+        const infoSection = document.querySelector('.col-12 .card-body');
+
+        audienciaSection.innerHTML = `
+            <div class="folder-tree">
+                <div class="tree-item">
+                    <i class="fas fa-folder text-warning me-2"></i>
+                    <span class="folder-name">................................................</span>
+                </div>
+            </div>
+        `;
+
+        infoSection.innerHTML = `
+            <div class="folder-info">
+                <div class="info-item d-flex align-items-center mb-2">
+                    <i class="fas fa-folder text-warning me-2"></i>
+                    <span class="info-text">................................................</span>
+                </div>
+            </div>
+        `;
+    }
+
+    // Event delegation para botones de toggle de secciones
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.toggle-section')) {
+            const button = e.target.closest('.toggle-section');
+            const icon = button.querySelector('i');
+            const content = button.closest('.document-section').querySelector('.section-content');
+
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.classList.remove('fa-plus');
+                icon.classList.add('fa-minus');
+            } else {
+                content.style.display = 'none';
+                icon.classList.remove('fa-minus');
+                icon.classList.add('fa-plus');
+            }
+        }
     });
 });
 </script>
