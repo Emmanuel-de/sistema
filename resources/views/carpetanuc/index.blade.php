@@ -11,9 +11,9 @@
                     <button class="btn btn-sm btn-outline-light me-1" title="Buscar">
                         <i class="fas fa-search"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-light me-1" title="Carpeta">
-                        <i class="fas fa-folder"></i>
-                    </button>
+                    <a href="{{ route('videos.create') }}" class="btn btn-sm btn-outline-warning me-1" title="Carpeta">
+                       <i class="fas fa-folder text-warning"></i>
+                    </a>
                     <button class="btn btn-sm btn-outline-light me-1" title="Configuración">
                         <i class="fas fa-cog"></i>
                     </button>

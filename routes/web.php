@@ -8,21 +8,25 @@ use App\Http\Controllers\ComplementarController;
 use App\Http\Controllers\PendienteController;
 use App\Http\Controllers\CarpetanucController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\VideoController;
 
-Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-// Ruta principal del dashboard
+// Login routes (public)
+Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [LoginController::class, 'login'])->name('login.post');
+Route::get('/register', [LoginController::class, 'showRegisterForm'])->name('register');
+Route::post('/register', [LoginController::class, 'register'])->name('register.post');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-
-// Rutas para obtener datos via AJAX (opcional)
-Route::prefix('api')->group(function () {
-    Route::get('/carpetas-data', [DashboardController::class, 'getCarpetasData'])->name('api.carpetas');
-    Route::get('/audiencias-data', [DashboardController::class, 'getAudienciasData'])->name('api.audiencias');
-    Route::get('/etapas-data', [DashboardController::class, 'getEtapasData'])->name('api.etapas');
-});
-
-// Si necesitas autenticación
+// Dashboard routes (protected)
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.authenticated');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
+    // Rutas para obtener datos via AJAX (opcional)
+    Route::prefix('api')->group(function () {
+        Route::get('/carpetas-data', [DashboardController::class, 'getCarpetasData'])->name('api.carpetas');
+        Route::get('/audiencias-data', [DashboardController::class, 'getAudienciasData'])->name('api.audiencias');
+        Route::get('/etapas-data', [DashboardController::class, 'getEtapasData'])->name('api.etapas');
+    });
 });
 
 // RUTAS ESPECÍFICAS DE RECEPCIÓN (DEBEN IR ANTES DEL RESOURCE)
@@ -219,3 +223,19 @@ Route::post('/pendientes/turnar', [App\Http\Controllers\PendienteController::cla
 Route::get('/carpetanuc/audiencia/{id}', [CarpetanucController::class, 'audiencia'])->name('carpetanuc.audiencia');
 Route::post('/carpetanuc/generar-trabajo', [CarpetanucController::class, 'generarTrabajo'])->name('carpetanuc.generar-trabajo');
 Route::get('/carpetanuc/datos-imputado/{id}', [CarpetanucController::class, 'datosImputado'])->name('carpetanuc.datos-imputado');
+
+//------------------
+// Rutas de videos
+//-----------------
+// Ruta para mostrar el formulario de subida de videos
+Route::get('/videos/create', [VideoController::class, 'create'])->name('videos.create'); 
+
+// Ruta para procesar la subida de videos (la que necesitas)
+Route::post('/videos', [VideoController::class, 'store'])->name('videos.store');
+
+// Rutas adicionales para un CRUD completo (opcional)
+Route::get('/videos', [VideoController::class, 'index'])->name('videos.index');
+Route::get('/videos/{video}', [VideoController::class, 'show'])->name('videos.show');
+Route::get('/videos/{video}/edit', [VideoController::class, 'edit'])->name('videos.edit');
+Route::put('/videos/{video}', [VideoController::class, 'update'])->name('videos.update');
+Route::delete('/videos/{video}', [VideoController::class, 'destroy'])->name('videos.destroy');

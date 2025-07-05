@@ -12,6 +12,10 @@ class LoginController extends Controller
     // Mostrar formulario de login
     public function showLoginForm()
     {
+        // Redirect to dashboard if already authenticated
+        if (auth()->check()) {
+            return redirect()->route('dashboard');
+        }
         return view('login.index');
     }
 
@@ -65,6 +69,6 @@ class LoginController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect('/login');
+        return redirect()->route('login');
     }
 }

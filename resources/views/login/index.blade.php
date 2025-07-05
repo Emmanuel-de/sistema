@@ -110,7 +110,7 @@
                         <i class="fas fa-user-circle"></i>
                         <h2>Iniciar Sesión</h2>
                     </div>
-                    
+
                     <div class="login-form">
                         @if ($errors->any())
                             <div class="alert alert-danger">
@@ -122,9 +122,9 @@
                             </div>
                         @endif
 
-                        <form method="POST" action="{{ route('login') }}">
+                        <form method="POST" action="{{ route('login.post') }}">
                             @csrf
-                            
+
                             <div class="form-group">
                                 <div class="input-group">
                                     <input type="email" 
