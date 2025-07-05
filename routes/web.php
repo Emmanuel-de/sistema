@@ -7,9 +7,11 @@ use App\Http\Controllers\DigitalizacionController;
 use App\Http\Controllers\ComplementarController;
 use App\Http\Controllers\PendienteController;
 use App\Http\Controllers\CarpetanucController;
+use App\Http\Controllers\LoginController;
 
-// Ruta principal del dashboard
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+// Ruta principal del dashboard
+
 
 // Rutas para obtener datos via AJAX (opcional)
 Route::prefix('api')->group(function () {
@@ -203,6 +205,15 @@ Route::delete('/carpetanuc/{id}', [CarpetanucController::class, 'destroy'])->nam
 
 // Ruta específica para la búsqueda de carpetas (si necesitas manejar el formulario de búsqueda)
 Route::post('/carpetanuc/buscar', [CarpetanucController::class, 'buscar'])->name('carpetanuc.buscar');
+
+// Rutas para documentos pendientes
+Route::get('/pendientes', [App\Http\Controllers\PendienteController::class, 'index'])->name('pendientes.index');
+Route::get('/pendientes/create', [App\Http\Controllers\PendienteController::class, 'create'])->name('pendientes.create');
+Route::post('/pendientes', [App\Http\Controllers\PendienteController::class, 'store'])->name('pendientes.store');
+Route::get('/pendientes/{id}', [App\Http\Controllers\PendienteController::class, 'show'])->name('pendientes.show');
+Route::post('/pendientes/liberar', [App\Http\Controllers\PendienteController::class, 'liberar'])->name('pendientes.liberar');
+Route::post('/pendientes/rechazar', [App\Http\Controllers\PendienteController::class, 'rechazar'])->name('pendientes.rechazar');
+Route::post('/pendientes/turnar', [App\Http\Controllers\PendienteController::class, 'turnar'])->name('pendientes.turnar');
 
 // Rutas adicionales para funcionalidades específicas
 Route::get('/carpetanuc/audiencia/{id}', [CarpetanucController::class, 'audiencia'])->name('carpetanuc.audiencia');

@@ -74,12 +74,12 @@
                                     </td>
                                     <td>
                                         <span class="fw-bold text-primary">
-                                            {{ $documento->numero ?? 'N/A' }}
+                                            {{ $documento->numero ?? 'S/N' }}
                                         </span>
                                     </td>
                                     <td>
                                         <span class="badge bg-info">
-                                            {{ $documento->tipo ?? 'Sin tipo' }}
+                                            {{ $documento->tipo ?? $documento->tipo_documento ?? 'Sin tipo' }}
                                         </span>
                                     </td>
                                     <td>
@@ -94,7 +94,11 @@
                                     </td>
                                     <td>
                                         <i class="fas fa-calendar me-1"></i>
-                                        {{ $documento->fecha_solicitud ? $documento->fecha_solicitud->format('d/m/Y') : 'N/A' }}
+                                        @if($documento->fecha_solicitud)
+                                            {{ is_string($documento->fecha_solicitud) ? date('d/m/Y', strtotime($documento->fecha_solicitud)) : $documento->fecha_solicitud->format('d/m/Y') }}
+                                        @else
+                                            N/A
+                                        @endif
                                     </td>
                                     <td>
                                         <span class="badge bg-warning">

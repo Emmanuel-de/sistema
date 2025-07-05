@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use App\Models\Documento; // Ajusta según tu modelo
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -304,6 +305,75 @@ class PendienteController extends Controller
                 'success' => false,
                 'message' => 'Error al generar el reporte: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Mostrar formulario para crear nuevo documento
+     */
+    public function create(): View
+    {
+        $users = User::all();
+        return view('pendientes.create', compact('users'));
+    }
+
+    /**
+     * Guardar nuevo documento en la tabla documentos
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'document_type' => 'required|string|max:100',
+            'assigned_user' => 'required|exists:users,id',
+            'ordering_person' => 'required|string|max:255',
+            'document_number' => 'nullable|string|max:100',
+            'requester' => 'required|string|max:255',
+            'priority' => 'required|in:baja,normal,alta,urgente',
+            'request_date' => 'required|date',
+            'due_date' => 'nullable|date|after_or_equal:request_date',
+            'document_description' => 'required|string',
+            'observations' => 'nullable|string'
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $documento = Documento::create([
+                'numero' => $request->document_number,
+                'tipo' => $request->document_type,
+                'descripcion' => $request->document_description,
+                'solicitante' => $request->requester,
+                'persona_ordena' => $request->ordering_person,
+                'asignado_a' => $request->assigned_user,
+                'prioridad' => $request->priority,
+                'fecha_solicitud' => $request->request_date,
+                'fecha_limite' => $request->due_date,
+                'observaciones' => $request->observations,
+                'estado' => 'pendiente',
+                'creado_por' => Auth::id(),
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            // Log de la acción
+            Log::info('Nuevo documento creado', [
+                'usuario' => Auth::id(),
+                'documento_id' => $documento->id,
+                'tipo' => $request->document_type
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('pendientes.index')
+                           ->with('success', 'Documento asignado correctamente');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error al crear documento: ' . $e->getMessage());
+
+            return redirect()->back()
+                           ->withInput()
+                           ->with('error', 'Error al crear el documento: ' . $e->getMessage());
         }
     }
 

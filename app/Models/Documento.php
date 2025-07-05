@@ -22,7 +22,11 @@ class Documento extends Model
         'tipo',
         'solicitante',
         'fecha_solicitud',
+        'fecha_limite',
         'prioridad',
+        'persona_ordena',
+        'observaciones',
+        'creado_por',
         'liberado_por',
         'fecha_liberacion',
         'observaciones_liberacion',
@@ -37,6 +41,7 @@ class Documento extends Model
 
     protected $casts = [
         'fecha_solicitud' => 'date',
+        'fecha_limite' => 'date',
         'fecha_liberacion' => 'datetime',
         'fecha_rechazo' => 'datetime',
         'fecha_turnado' => 'datetime'

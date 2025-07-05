@@ -16,9 +16,9 @@
 
             <!-- Contenido del modal -->
             <div class="modal-body">
-                <form id="assignWorkForm" method="POST" action="{{ route('carpeta.assign') }}">
+                <form id="assignWorkForm" method="POST" action="{{ route('pendientes.store') }}">
                     @csrf
-                    
+
                     <div class="form-group">
                         <label for="document_type">Seleccione el tipo de documento:</label>
                         <select class="form-control" id="document_type" name="document_type" required>
@@ -35,9 +35,15 @@
                         <label for="assigned_user">Seleccione el usuario que acordará:</label>
                         <select class="form-control" id="assigned_user" name="assigned_user" required>
                             <option value="">Seleccione un usuario</option>
-                            @foreach($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }}</option>
-                            @endforeach
+                            @if(isset($users))
+                                @foreach($users as $user)
+                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                @endforeach
+                            @else
+                                <option value="1">Pepe Cuevas</option>
+                                <option value="2">Pepe Garsa</option>
+                                <option value="3">Miguel Angel</option>
+                            @endif
                         </select>
                     </div>
 
@@ -48,9 +54,49 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="document_number">Número de documento:</label>
+                        <input type="text" class="form-control" id="document_number" name="document_number" 
+                               placeholder="Ingrese el número del documento">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="requester">Solicitante:</label>
+                        <input type="text" class="form-control" id="requester" name="requester" 
+                               placeholder="Nombre del solicitante" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="priority">Prioridad:</label>
+                        <select class="form-control" id="priority" name="priority" required>
+                            <option value="">Seleccione prioridad</option>
+                            <option value="baja">Baja</option>
+                            <option value="normal">Normal</option>
+                            <option value="alta">Alta</option>
+                            <option value="urgente">Urgente</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="request_date">Fecha de solicitud:</label>
+                        <input type="date" class="form-control" id="request_date" name="request_date" 
+                               value="{{ date('Y-m-d') }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="due_date">Fecha límite:</label>
+                        <input type="date" class="form-control" id="due_date" name="due_date">
+                    </div>
+
+                    <div class="form-group">
                         <label for="document_description">Escriba una descripción del documento:</label>
                         <textarea class="form-control" id="document_description" name="document_description" 
                                   rows="5" placeholder="Describa el documento detalladamente..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="observations">Observaciones adicionales:</label>
+                        <textarea class="form-control" id="observations" name="observations" 
+                                  rows="3" placeholder="Observaciones opcionales..."></textarea>
                     </div>
                 </form>
             </div>
@@ -232,16 +278,16 @@ textarea.form-control {
         width: 95%;
         margin: 10px;
     }
-    
+
     .modal-body {
         padding: 20px;
     }
-    
+
     .modal-footer {
         flex-direction: column;
         gap: 8px;
     }
-    
+
     .btn {
         width: 100%;
     }
@@ -267,7 +313,7 @@ textarea.form-control {
 function closeModal() {
     const overlay = document.getElementById('modalOverlay');
     overlay.classList.add('closing');
-    
+
     setTimeout(() => {
         // Redireccionar o cerrar según tu lógica
         window.history.back(); // o window.close() si es popup
@@ -289,11 +335,11 @@ document.querySelector('.modal-container').addEventListener('click', function(e)
 // Manejar el envío del formulario
 document.getElementById('assignWorkForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    
+
     // Validar campos
-    const requiredFields = ['document_type', 'assigned_user', 'ordering_person', 'document_description'];
+    const requiredFields = ['document_type', 'assigned_user', 'ordering_person', 'requester', 'priority', 'request_date', 'document_description'];
     let isValid = true;
-    
+
     requiredFields.forEach(field => {
         const element = document.getElementById(field);
         if (!element.value.trim()) {
@@ -303,13 +349,13 @@ document.getElementById('assignWorkForm').addEventListener('submit', function(e)
             element.style.borderColor = '#ced4da';
         }
     });
-    
+
     if (isValid) {
         // Aquí puedes agregar una animación de loading
         const submitBtn = document.querySelector('.btn-primary');
         submitBtn.innerHTML = 'Asignando...';
         submitBtn.disabled = true;
-        
+
         // Enviar formulario
         this.submit();
     } else {

@@ -38,9 +38,9 @@
             <div class="toolbar-section">
                 <span class="toolbar-label">GENERAR TRABAJO</span>
                 <div class="toolbar-icons">
-                    <button class="btn btn-sm btn-outline-warning me-1" title="Carpeta">
-                        <i class="fas fa-folder text-warning"></i>
-                    </button>
+                    <a href="{{ route('pendientes.create') }}" class="btn btn-sm btn-outline-warning me-1" title="Carpeta">
+                       <i class="fas fa-folder text-warning"></i>
+                    </a>
                     <button class="btn btn-sm btn-outline-light me-1" title="Impresora">
                         <i class="fas fa-print"></i>
                     </button>
