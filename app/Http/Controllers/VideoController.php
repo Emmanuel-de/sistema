@@ -21,9 +21,10 @@ class VideoController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        return view('videos.create');
+        $nuc = $request->query('nuc'); // Obtener NUC de la URL
+        return view('videos.create', compact('nuc'));
     }
 
     /**
@@ -31,32 +32,34 @@ class VideoController extends Controller
      */
     public function store(Request $request)
     {
-        // Validar los datos del formulario
-        $request->validate([
-            'nombre_video' => 'required|string|max:255',
-            'fecha_subida' => 'required|date',
-            'video_file' => 'required|file|mimes:mp4,avi,mov,wmv|max:102400', // 100MB max
-        ], [
-            'nombre_video.required' => 'El nombre del video es obligatorio.',
-            'fecha_subida.required' => 'La fecha de subida es obligatoria.',
-            'video_file.required' => 'Debe seleccionar un archivo de video.',
-            'video_file.mimes' => 'El archivo debe ser de tipo: mp4, avi, mov, wmv.',
-            'video_file.max' => 'El archivo no debe superar los 100MB.',
-        ]);
-
         try {
+            // Validar los datos del formulario
+            $request->validate([
+                'nombre_video' => 'required|string|max:255',
+                'nuc' => 'nullable|string|max:255',
+                'fecha_subida' => 'required|date',
+                'video_file' => 'required|file|mimes:mp4,avi,mov,wmv|max:102400', // 100MB max
+            ], [
+                'nombre_video.required' => 'El nombre del video es obligatorio.',
+                'fecha_subida.required' => 'La fecha de subida es obligatoria.',
+                'video_file.required' => 'Debe seleccionar un archivo de video.',
+                'video_file.mimes' => 'El archivo debe ser de tipo: mp4, avi, mov, wmv.',
+                'video_file.max' => 'El archivo no debe superar los 100MB.',
+            ]);
+
             // Obtener el archivo
             $videoFile = $request->file('video_file');
-            
+
             // Generar un nombre único para el archivo
             $fileName = Str::uuid() . '.' . $videoFile->getClientOriginalExtension();
-            
+
             // Guardar el archivo en storage/app/public/videos
             $filePath = $videoFile->storeAs('videos', $fileName, 'public');
-            
+
             // Crear el registro en la base de datos
             $video = Video::create([
                 'nombre_video' => $request->nombre_video,
+                'nuc' => $request->nuc,
                 'fecha_subida' => $request->fecha_subida,
                 'archivo_path' => $filePath,
                 'archivo_original' => $videoFile->getClientOriginalName(),
@@ -65,7 +68,7 @@ class VideoController extends Controller
                 'mime_type' => $videoFile->getMimeType(),
                 'estado' => 'activo',
             ]);
-            
+
             \Log::info('Video subido exitosamente', [
                 'id' => $video->id,
                 'nombre' => $request->nombre_video,
@@ -73,20 +76,31 @@ class VideoController extends Controller
                 'archivo' => $fileName,
                 'ruta' => $filePath
             ]);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Video subido exitosamente',
                 'data' => [
                     'id' => $video->id,
                     'nombre' => $video->nombre_video,
-                    'fecha' => $video->fecha_subida->format('Y-m-d'),
-                    'archivo' => $fileName,
-                    'url' => $video->url
+                    'fecha' => $video->fecha_subida,
+                    'archivo' => $fileName
                 ]
             ]);
-            
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+
         } catch (\Exception $e) {
+            \Log::error('Error al subir video: ' . $e->getMessage(), [
+                'request' => $request->all(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al subir el video: ' . $e->getMessage()
@@ -119,16 +133,16 @@ class VideoController extends Controller
     public function update(Request $request, $id)
     {
         $video = Video::findOrFail($id);
-        
+
         $request->validate([
             'nombre_video' => 'required|string|max:255',
             'fecha_subida' => 'required|date',
             'descripcion' => 'nullable|string',
             'estado' => 'required|in:activo,inactivo,procesando',
         ]);
-        
+
         $video->update($request->only(['nombre_video', 'fecha_subida', 'descripcion', 'estado']));
-        
+
         return redirect()->route('videos.index')->with('success', 'Video actualizado exitosamente');
     }
 
@@ -139,7 +153,7 @@ class VideoController extends Controller
     {
         $video = Video::findOrFail($id);
         $video->delete(); // El modelo se encarga de eliminar el archivo físico
-        
+
         return redirect()->route('videos.index')->with('success', 'Video eliminado exitosamente');
     }
 }

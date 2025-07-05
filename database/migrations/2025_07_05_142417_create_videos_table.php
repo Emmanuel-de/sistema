@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('videos', function (Blueprint $table) {
             $table->id();
             $table->string('nombre_video');
+            $table->string('nuc')->nullable(); // NUC de la carpeta asociada
             $table->date('fecha_subida');
             $table->string('archivo_path'); // Ruta del archivo en storage
             $table->string('archivo_original'); // Nombre original del archivo
@@ -27,7 +28,7 @@ return new class extends Migration
             $table->integer('vistas')->default(0); // Contador de vistas
             $table->json('metadata')->nullable(); // Metadatos adicionales en JSON
             $table->timestamps();
-            
+
             // Índices para optimizar consultas
             $table->index('fecha_subida');
             $table->index('estado');

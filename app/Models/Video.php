@@ -17,6 +17,7 @@ class Video extends Model
      */
     protected $fillable = [
         'nombre_video',
+        'nuc',
         'fecha_subida',
         'archivo_path',
         'archivo_original',
@@ -50,13 +51,13 @@ class Video extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         // Eliminar archivo físico cuando se elimine el registro
         static::deleting(function ($video) {
             if ($video->archivo_path && Storage::disk('public')->exists($video->archivo_path)) {
                 Storage::disk('public')->delete($video->archivo_path);
             }
-            
+
             // Eliminar thumbnail si existe
             if ($video->thumbnail_path && Storage::disk('public')->exists($video->thumbnail_path)) {
                 Storage::disk('public')->delete($video->thumbnail_path);
@@ -90,11 +91,11 @@ class Video extends Model
     {
         $bytes = $this->tamano;
         $units = ['B', 'KB', 'MB', 'GB'];
-        
+
         for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
             $bytes /= 1024;
         }
-        
+
         return round($bytes, 2) . ' ' . $units[$i];
     }
 
@@ -104,15 +105,15 @@ class Video extends Model
     public function getDuracionFormateadaAttribute()
     {
         if (!$this->duracion) return 'N/A';
-        
+
         $hours = floor($this->duracion / 3600);
         $minutes = floor(($this->duracion % 3600) / 60);
         $seconds = $this->duracion % 60;
-        
+
         if ($hours > 0) {
             return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
         }
-        
+
         return sprintf('%02d:%02d', $minutes, $seconds);
     }
 
@@ -165,6 +166,14 @@ class Video extends Model
     }
 
     /**
+     * Scope para videos por NUC
+     */
+    public function scopePorNuc($query, $nuc)
+    {
+        return $query->where('nuc', $nuc);
+    }
+
+    /**
      * Mutator para convertir el nombre a título
      */
     public function setNombreVideoAttribute($value)
@@ -190,7 +199,7 @@ class Video extends Model
         }
 
         $path = Storage::disk('public')->path($this->archivo_path);
-        
+
         return [
             'ruta_completa' => $path,
             'tamano_real' => filesize($path),
@@ -205,11 +214,11 @@ class Video extends Model
     public function validarIntegridad()
     {
         $info = $this->getInfoArchivo();
-        
+
         if (!$info) {
             return false;
         }
-        
+
         // Verificar que el tamaño coincida
         return $info['tamano_real'] === $this->tamano;
     }

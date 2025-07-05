@@ -132,6 +132,7 @@ class CarpetanucController extends Controller
         $recepcion = \App\Models\Recepcion::where('nuc', $numeroCarpeta)->first();
         $digitalizaciones = \App\Models\Digitalizacion::where('nuc', $numeroCarpeta)->get();
         $complementarios = \App\Models\Complementar::where('nuc', $numeroCarpeta)->get();
+        $videos = \App\Models\Video::where('nuc', $numeroCarpeta)->activos()->get();
 
         // También buscar en carpetanucs por número de carpeta
         $carpeta = Carpetanuc::where('numero_carpeta', $numeroCarpeta)
@@ -139,7 +140,7 @@ class CarpetanucController extends Controller
                             ->first();
 
         // Verificar si se encontró información en alguna tabla
-        $encontrado = $recepcion || $digitalizaciones->count() > 0 || $complementarios->count() > 0 || $carpeta;
+        $encontrado = $recepcion || $digitalizaciones->count() > 0 || $complementarios->count() > 0 || $carpeta || $videos->count() > 0;
 
         if ($encontrado) {
             $resultado = [
@@ -152,9 +153,11 @@ class CarpetanucController extends Controller
                     'recepcion' => null,
                     'digitalizaciones' => [],
                     'complementarios' => [],
+                    'videos' => [],
                     'resumen' => [
                         'total_digitalizaciones' => $digitalizaciones->count(),
                         'total_complementarios' => $complementarios->count(),
+                        'total_videos' => $videos->count(),
                         'tiene_recepcion' => $recepcion ? true : false,
                         'tiene_carpeta' => $carpeta ? true : false
                     ]
@@ -232,6 +235,28 @@ class CarpetanucController extends Controller
                 })->toArray();
             }
 
+            // Agregar videos
+            if ($videos->count() > 0) {
+                $resultado['data']['videos'] = $videos->map(function ($video) {
+                    return [
+                        'id' => $video->id,
+                        'nombre_video' => $video->nombre_video,
+                        'nuc' => $video->nuc,
+                        'fecha_subida' => $video->fecha_subida,
+                        'archivo_path' => $video->archivo_path,
+                        'archivo_original' => $video->archivo_original,
+                        'extension' => $video->extension,
+                        'tamano' => $video->tamano,
+                        'tamano_formateado' => $video->tamano_formateado,
+                        'duracion_formateada' => $video->duracion_formateada,
+                        'estado' => $video->estado,
+                        'vistas' => $video->vistas,
+                        'url' => $video->url,
+                        'descripcion' => $video->descripcion,
+                    ];
+                })->toArray();
+            }
+
             return response()->json($resultado);
         }
 
@@ -286,4 +311,3 @@ class CarpetanucController extends Controller
         ]);
     }
 }
-

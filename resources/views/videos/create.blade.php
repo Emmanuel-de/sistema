@@ -221,15 +221,21 @@
             SUBIR VIDEO
             <button type="button" class="close-btn" onclick="closeModal()">×</button>
         </div>
-        
+
         <div class="modal-body">
             <form id="videoUploadForm" action="{{ route('videos.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                
+
                 <div class="form-group">
                     <label for="nombre_video">Nombre del Video *</label>
                     <input type="text" id="nombre_video" name="nombre_video" required>
                     <div class="error-message" id="nombre_error"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="nuc">NUC de la Carpeta</label>
+                    <input type="text" id="nuc" name="nuc" value="{{ $nuc ?? '' }}" placeholder="Número de carpeta (NUC)">
+                    <div class="error-message" id="nuc_error"></div>
                 </div>
 
                 <div class="form-group">
@@ -274,7 +280,7 @@
             const file = e.target.files[0];
             const selectedFileDiv = document.getElementById('selectedFile');
             const fileError = document.getElementById('file_error');
-            
+
             if (file) {
                 // Validar tipo de archivo
                 const allowedTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/wmv'];
@@ -283,14 +289,14 @@
                     selectedFileDiv.style.display = 'none';
                     return;
                 }
-                
+
                 // Validar tamaño (100MB = 100 * 1024 * 1024 bytes)
                 if (file.size > 100 * 1024 * 1024) {
                     fileError.textContent = 'El archivo es demasiado grande. Máximo 100MB.';
                     selectedFileDiv.style.display = 'none';
                     return;
                 }
-                
+
                 fileError.textContent = '';
                 selectedFileDiv.innerHTML = `
                     <strong>Archivo seleccionado:</strong><br>
@@ -304,21 +310,21 @@
 
         // Manejar drag and drop
         const fileUploadContainer = document.getElementById('fileUploadContainer');
-        
+
         fileUploadContainer.addEventListener('dragover', function(e) {
             e.preventDefault();
             fileUploadContainer.classList.add('dragover');
         });
-        
+
         fileUploadContainer.addEventListener('dragleave', function(e) {
             e.preventDefault();
             fileUploadContainer.classList.remove('dragover');
         });
-        
+
         fileUploadContainer.addEventListener('drop', function(e) {
             e.preventDefault();
             fileUploadContainer.classList.remove('dragover');
-            
+
             const files = e.dataTransfer.files;
             if (files.length > 0) {
                 document.getElementById('video_file').files = files;
@@ -329,10 +335,10 @@
         // Manejar envío del formulario
         document.getElementById('videoUploadForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             // Validar campos
             let isValid = true;
-            
+
             const nombre = document.getElementById('nombre_video').value.trim();
             if (!nombre) {
                 document.getElementById('nombre_error').textContent = 'El nombre del video es requerido.';
@@ -340,7 +346,7 @@
             } else {
                 document.getElementById('nombre_error').textContent = '';
             }
-            
+
             const fecha = document.getElementById('fecha_subida').value;
             if (!fecha) {
                 document.getElementById('fecha_error').textContent = 'La fecha de subida es requerida.';
@@ -348,7 +354,7 @@
             } else {
                 document.getElementById('fecha_error').textContent = '';
             }
-            
+
             const archivo = document.getElementById('video_file').files[0];
             if (!archivo) {
                 document.getElementById('file_error').textContent = 'Debe seleccionar un archivo de video.';
@@ -356,26 +362,26 @@
             } else {
                 document.getElementById('file_error').textContent = '';
             }
-            
+
             if (!isValid) return;
-            
+
             // Simular subida con barra de progreso
             const submitBtn = document.getElementById('submitBtn');
             const progressBar = document.getElementById('progressBar');
             const progressFill = document.getElementById('progressFill');
-            
+
             submitBtn.disabled = true;
             submitBtn.textContent = 'Subiendo...';
             progressBar.style.display = 'block';
-            
+
             // Simular progreso
             let progress = 0;
             const interval = setInterval(() => {
                 progress += Math.random() * 20;
                 if (progress > 100) progress = 100;
-                
+
                 progressFill.style.width = progress + '%';
-                
+
                 if (progress >= 100) {
                     clearInterval(interval);
                     // Aquí normalmente enviarías el formulario real
