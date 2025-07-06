@@ -71,22 +71,27 @@ class PendienteController extends Controller
      */
     public function buscar(Request $request): JsonResponse
     {
-        $termino = $request->input('termino');
+        $termino = $request->input('termino', $request->input('buscar'));
         
-        $documentos = Documento::where('estado', 'pendiente')
-                              ->where(function($query) use ($termino) {
-                                  $query->where('numero', 'LIKE', "%{$termino}%")
-                                        ->orWhere('descripcion', 'LIKE', "%{$termino}%")
-                                        ->orWhere('tipo', 'LIKE', "%{$termino}%")
-                                        ->orWhere('solicitante', 'LIKE', "%{$termino}%");
-                              })
-                              ->orderBy('fecha_solicitud', 'desc')
-                              ->get();
+        $query = Documento::where('estado', 'pendiente')
+                          ->orWhere('estado', 'liberado_auxiliar');
+        
+        if ($termino) {
+            $query->where(function($q) use ($termino) {
+                $q->where('numero', 'LIKE', "%{$termino}%")
+                  ->orWhere('descripcion', 'LIKE', "%{$termino}%")
+                  ->orWhere('tipo', 'LIKE', "%{$termino}%")
+                  ->orWhere('solicitante', 'LIKE', "%{$termino}%");
+            });
+        }
+        
+        $documentos = $query->orderBy('fecha_solicitud', 'desc')->get();
 
         return response()->json([
             'success' => true,
             'documentos' => $documentos,
-            'total' => $documentos->count()
+            'total' => $documentos->count(),
+            'html' => view('pendientes.partials.table-rows', compact('documentos'))->render()
         ]);
     }
 

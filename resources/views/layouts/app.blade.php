@@ -4,9 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    
+
     <title>@yield('title', 'Sistema Judicial Tamaulipas')</title>
-    
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -21,38 +21,38 @@
             background-color: #f8f9fa;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         .navbar {
             background-color:rgb(110, 20, 50) !important;
         }
-        
+
         .navbar-brand {
             color: white !important;
             font-weight: bold;
         }
-        
+
         .nav-tabs {
             background-color:rgb(48, 46, 47);
             border-bottom: none;
         }
-        
+
         .nav-tabs .nav-link {
             color: white;
             border: none;
             border-radius: 0;
         }
-        
+
         .nav-tabs .nav-link:hover {
             background-color: rgba(255,255,255,0.1);
             border-color: transparent;
         }
-        
+
         .nav-tabs .nav-link.active {
             background-color: white;
             color:rgb(102, 100, 101);
             border-color: transparent;
         }
-        
+
         .main-content {
             padding: 20px 0;
         }
@@ -63,21 +63,21 @@
             padding-top: 8px;
             margin-top: 8px;
         }
-        
+
         .year-selector .dropdown-header {
             color: #6c757d;
             font-size: 0.875rem;
             font-weight: 600;
         }
-        
+
         .year-item {
             cursor: pointer;
         }
-        
+
         .year-item:hover {
             background-color: #f8f9fa;
         }
-        
+
         .year-item.active {
             background-color: #e9ecef;
             font-weight: bold;
@@ -91,11 +91,11 @@
                 <img src="{{ asset('images/logo.png') }}" alt="Logo" width="30" height="30" class="d-inline-block align-text-top me-2">
                 Poder Judicial Tamaulipas
             </a>
-            
+
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
+
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item dropdown">
@@ -153,7 +153,7 @@
                         <a class="nav-link" href="#">CONFIGURACIÓN</a>
                     </li>
                 </ul>
-                
+
                 <ul class="navbar-nav">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
@@ -161,22 +161,29 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="#">Perfil</a></li>
-                            <li><a class="dropdown-item" href="#">Configuración</a></li>
+                            <li><a class="dropdown-item" href="#">Agenda</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="#">Salir</a></li>
+                            <li>
+                                <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item" style="border: none; background: none; width: 100%; text-align: left;">
+                                        Salir
+                                    </button>
+                                </form>
+                            </li>
                         </ul>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
-    
+
     <ul class="nav nav-tabs">
         <li class="nav-item">
             <a class="nav-link active" href="#" id="current-year-tab">AÑO: <span id="selected-year">2017</span></a>
         </li>
     </ul>
-    
+
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12 main-content">
@@ -184,14 +191,14 @@
             </div>
         </div>
     </div>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-    
+
     <script>
         // Variable global para el año actual
         let currentYear = 2017;
-        
+
         /**
          * Función para cambiar el año seleccionado
          * @param {number} year - Año a seleccionar
@@ -199,28 +206,28 @@
         function changeYear(year) {
             // Actualizar año actual
             currentYear = year;
-            
+
             // Actualizar el texto del tab
             document.getElementById('selected-year').textContent = year;
-            
+
             // Actualizar clase active en el menú
             document.querySelectorAll('.year-item').forEach(item => {
                 item.classList.remove('active');
             });
             document.querySelector(`[data-year="${year}"]`).classList.add('active');
-            
+
             // Cerrar el dropdown
             const dropdown = bootstrap.Dropdown.getInstance(document.querySelector('[data-bs-toggle="dropdown"]'));
             if (dropdown) {
                 dropdown.hide();
             }
-            
+
             // Aquí puedes agregar la lógica para actualizar los datos
             // Por ejemplo:
             // updateDashboardData(year);
-            
+
             console.log(`Año seleccionado: ${year}`);
-            
+
             // Ejemplo de cómo podrías hacer una petición AJAX para actualizar los datos:
             // fetch(`/dashboard/data/${year}`)
             //     .then(response => response.json())
@@ -232,7 +239,7 @@
             //         console.error('Error al cargar datos:', error);
             //     });
         }
-        
+
         /**
          * Función placeholder para actualizar gráficos
          * Esta función será implementada cuando tengas la lógica del backend
@@ -241,7 +248,7 @@
             // Aquí actualizarías los gráficos con los nuevos datos
             console.log('Actualizando gráficos con datos:', data);
         }
-        
+
         /**
          * Función placeholder para actualizar tablas
          * Esta función será implementada cuando tengas la lógica del backend
@@ -250,15 +257,15 @@
             // Aquí actualizarías las tablas con los nuevos datos
             console.log('Actualizando tablas con datos:', data);
         }
-        
+
         // Inicialización cuando se carga la página
         document.addEventListener('DOMContentLoaded', function() {
             // Marcar el año actual como activo
             document.querySelector(`[data-year="${currentYear}"]`)?.classList.add('active');
         });
     </script>
-    
+
     @stack('scripts')
-    
+
 </body>
 </html>

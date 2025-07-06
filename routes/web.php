@@ -142,6 +142,7 @@ Route::prefix('complementar')->name('complementar.')->group(function () {
 
 // Rutas específicas ANTES del resource (para evitar conflictos)
 Route::get('/pendientes/search', [PendienteController::class, 'buscar'])->name('pendientes.search');
+Route::post('/pendientes/search', [PendienteController::class, 'buscar'])->name('pendientes.search.post');
 Route::get('/pendientes/estadisticas', [PendienteController::class, 'estadisticas'])->name('pendientes.estadisticas');
 Route::post('/pendientes/liberar', [PendienteController::class, 'liberar'])->name('pendientes.liberar');
 Route::post('/pendientes/rechazar', [PendienteController::class, 'rechazar'])->name('pendientes.rechazar');
