@@ -10,6 +10,7 @@ use App\Http\Controllers\CarpetanucController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\NotificacionController;
+use App\Http\Controllers\AgendaController;
 
 // Login routes (public)
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
@@ -253,3 +254,14 @@ Route::get('/notificaciones/{notificacion}', [NotificacionController::class, 'sh
 Route::get('/notificaciones/{notificacion}/edit', [NotificacionController::class, 'edit'])->name('notificaciones.edit');
 Route::put('/notificaciones/{notificacion}', [NotificacionController::class, 'update'])->name('notificaciones.update');
 Route::delete('/notificaciones/{notificacion}', [NotificacionController::class, 'destroy'])->name('notificaciones.destroy');
+
+//--------------------------
+// RUTAS DE AGENDA
+//--------------------------
+
+Route::get('/agenda', [App\Http\Controllers\AgendaController::class, 'index'])->name('agenda.index');
+Route::post('/agenda', [App\Http\Controllers\AgendaController::class, 'store'])->name('agenda.store');
+Route::get('/agenda/{id}', [App\Http\Controllers\AgendaController::class, 'show'])->name('agenda.show');
+Route::get('/agenda/{id}/edit', [App\Http\Controllers\AgendaController::class, 'edit'])->name('agenda.edit');
+Route::put('/agenda/{id}', [App\Http\Controllers\AgendaController::class, 'update'])->name('agenda.update');
+Route::delete('/agenda/{id}', [App\Http\Controllers\AgendaController::class, 'destroy'])->name('agenda.destroy');

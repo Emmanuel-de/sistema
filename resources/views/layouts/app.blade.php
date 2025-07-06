@@ -161,7 +161,7 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="#">Perfil</a></li>
-                            <li><a class="dropdown-item" href="#">Agenda</a></li>
+                            <li><a class="dropdown-item" href="{{ route('agenda.index')}}">Agenda</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form action="{{ route('logout') }}" method="POST" style="display: inline;">
