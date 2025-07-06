@@ -136,11 +136,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('carpetanuc.index')}}">CARPETA PRELIMINAR</a>
                     </li>
+
                     <li class="nav-item">
-                        <a class="nav-link" href="#">ASIGNAR TRABAJO</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">CARPETA PROCESAL</a>
+                        <a class="nav-link" href="{{ route('notificaciones.index')}}">CARPETA PROCESAL</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">AMPARO</a>

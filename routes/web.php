@@ -9,6 +9,7 @@ use App\Http\Controllers\PendienteController;
 use App\Http\Controllers\CarpetanucController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\VideoController;
+use App\Http\Controllers\NotificacionController;
 
 // Login routes (public)
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
@@ -20,7 +21,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 // Dashboard routes (protected)
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
+
     // Rutas para obtener datos via AJAX (opcional)
     Route::prefix('api')->group(function () {
         Route::get('/carpetas-data', [DashboardController::class, 'getCarpetasData'])->name('api.carpetas');
@@ -239,3 +240,15 @@ Route::get('/videos/{video}', [VideoController::class, 'show'])->name('videos.sh
 Route::get('/videos/{video}/edit', [VideoController::class, 'edit'])->name('videos.edit');
 Route::put('/videos/{video}', [VideoController::class, 'update'])->name('videos.update');
 Route::delete('/videos/{video}', [VideoController::class, 'destroy'])->name('videos.destroy');
+
+//--------------------------
+// RUTA DE NOTIFICASIOONES
+//--------------------------
+
+Route::get('/notificaciones', [NotificacionController::class, 'index'])->name('notificaciones.index');
+Route::get('/notificaciones/create', [NotificacionController::class, 'create'])->name('notificaciones.create');
+Route::post('/notificaciones', [NotificacionController::class, 'store'])->name('notificaciones.store');
+Route::get('/notificaciones/{notificacion}', [NotificacionController::class, 'show'])->name('notificaciones.show');
+Route::get('/notificaciones/{notificacion}/edit', [NotificacionController::class, 'edit'])->name('notificaciones.edit');
+Route::put('/notificaciones/{notificacion}', [NotificacionController::class, 'update'])->name('notificaciones.update');
+Route::delete('/notificaciones/{notificacion}', [NotificacionController::class, 'destroy'])->name('notificaciones.destroy');
